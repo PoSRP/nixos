@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CONFIG="/iso/config"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Run as root: sudo $0"
+    exit 1
+fi
+
+FAMILY=$(cat /sys/class/dmi/id/product_family)
+case "$FAMILY" in
+  "ThinkPad X13 Gen 1")
+    HOSTNAME="thinkpad-x13-gen1"
+    DISK="/dev/nvme0n1"
+    PART="p"
+    ;;
+  "ThinkPad W540")
+    HOSTNAME="thinkpad-w540"
+    DISK="/dev/sda"
+    PART=""
+    ;;
+  *)
+    echo "error: unrecognised product family '$FAMILY'" >&2
+    exit 1
+    ;;
+esac
+
+SYSTEM=$(cat "/iso/systems/$HOSTNAME")
+USERNAME=$(cat /iso/username)
+EFI_PART="${DISK}${PART}1"
+ROOT_PART="${DISK}${PART}2"
+
+echo "NixOS installer"
+echo ""
+echo "  Host        : $HOSTNAME"
+echo "  Disk        : $DISK"
+echo ""
+echo "ALL DATA ON $DISK WILL BE ERASED."
+echo ""
+read -rp "Type YES to continue: " confirm
+if [[ "$confirm" != "YES" ]]; then
+    echo "Aborted."
+    exit 1
+fi
+
+read -rsp "Password (LUKS + user): " PASSWORD
+echo
+read -rsp "Confirm password: " PASSWORD_CONFIRM
+echo
+if [[ "$PASSWORD" != "$PASSWORD_CONFIRM" ]]; then
+    echo "error: passwords do not match" >&2
+    exit 1
+fi
+
+if [[ ! -d /sys/firmware/efi ]]; then
+    echo ""
+    echo "ERROR: This installer requires UEFI boot mode."
+    echo "       The machine appears to be booting in Legacy/BIOS mode."
+    echo "       Enter the firmware settings and switch to UEFI, then retry."
+    exit 1
+fi
+
+echo ""
+echo "==> Removing old EFI boot entries..."
+while read -r line; do
+    [[ "$line" == *"HD("* ]] || continue
+    id="${line:4:4}"
+    efibootmgr -b "$id" -B &>/dev/null && echo "    Removed Boot$id"
+done < <(efibootmgr -v)
+
+echo ""
+echo "==> Partitioning $DISK..."
+sgdisk --zap-all "$DISK"
+sgdisk -n 1:0:+512M -t 1:ef00 -c 1:boot "$DISK"
+sgdisk -n 2:0:0     -t 2:8309 -c 2:root "$DISK"
+
+echo ""
+echo "==> Formatting EFI partition..."
+mkfs.fat -F 32 "$EFI_PART"
+
+echo ""
+echo "==> Setting up LUKS on $ROOT_PART..."
+echo "$PASSWORD" | cryptsetup luksFormat --batch-mode "$ROOT_PART"
+echo "$PASSWORD" | cryptsetup open "$ROOT_PART" cryptroot
+ROOT_DEV="/dev/mapper/cryptroot"
+
+echo ""
+echo "==> Formatting root filesystem..."
+mkfs.btrfs -L nixos "$ROOT_DEV"
+
+echo ""
+echo "==> Creating btrfs subvolumes..."
+mount "$ROOT_DEV" /mnt
+for sv in @ @home @workspace @nix @var-log @swap @snapshots; do
+    btrfs subvolume create "/mnt/$sv"
+done
+umount /mnt
+
+echo ""
+echo "==> Mounting subvolumes..."
+mount -o subvol=@,compress=zstd:1,noatime "$ROOT_DEV" /mnt
+mkdir -p /mnt/home /mnt/nix /mnt/var/log /mnt/swap /mnt/.snapshots
+mount -o subvol=@home,compress=zstd:1,noatime "$ROOT_DEV" /mnt/home
+mkdir -p "/mnt/home/$USERNAME/workspace"
+mount -o subvol=@workspace,noatime "$ROOT_DEV" "/mnt/home/$USERNAME/workspace"
+mount -o subvol=@nix,compress=zstd:1,noatime "$ROOT_DEV" /mnt/nix
+mount -o subvol=@var-log,noatime "$ROOT_DEV" /mnt/var/log
+mount -o subvol=@swap,noatime "$ROOT_DEV" /mnt/swap
+mount -o subvol=@snapshots,noatime "$ROOT_DEV" /mnt/.snapshots
+mount --mkdir -o fmask=0077,dmask=0077 "$EFI_PART" /mnt/boot
+
+echo ""
+echo "==> Installing NixOS..."
+nixos-install --system "$SYSTEM" --no-root-passwd
+
+echo ""
+echo "==> Copying config repo to new system..."
+mkdir -p "/mnt/home/$USERNAME/workspace"
+cp -r "$CONFIG" "/mnt/home/$USERNAME/workspace/nixos"
+chmod -R u+w "/mnt/home/$USERNAME/workspace/nixos"
+nixos-enter --root /mnt -- chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
+
+echo ""
+echo "==> Setting password for $USERNAME..."
+echo "$USERNAME:$PASSWORD" | nixos-enter --root /mnt -- chpasswd
+
+echo ""
+echo "Done, rebooting..."
+sleep 3
+reboot

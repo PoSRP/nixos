@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+    echo "Usage: $0 [-h] [-j CORES]"
+    echo ""
+    echo "Build the NixOS installer ISO."
+    echo ""
+    echo "The resulting ISO is linked at result-iso/iso/*.iso in the repo root."
+    echo "Flash it with: scripts/flash-usb /dev/sdX"
+}
+
+[[ "${1:-}" == "--help" ]] && { usage; exit 0; }
+
+JOBS_ARGS=()
+while getopts "hj:" opt; do
+    case $opt in
+        h) usage; exit 0 ;;
+        j) JOBS_ARGS=(--max-jobs "1" --cores "$OPTARG") ;;
+        *) usage >&2; exit 1 ;;
+    esac
+done
+
+REPO_ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
+
+echo "Building NixOS installer ISO (this takes a while on the first run)..."
+nix build "path:$REPO_ROOT#nixosConfigurations.installer.config.system.build.isoImage" \
+    --out-link "$REPO_ROOT/result-iso" \
+    "${JOBS_ARGS[@]}"
+
+ISO=$(ls "$REPO_ROOT/result-iso/iso/"*.iso | head -1)
+
+echo ""
+echo "Done: $ISO"
+echo "Flash with: scripts/flash-usb /dev/sdX"

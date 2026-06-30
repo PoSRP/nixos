@@ -1,0 +1,63 @@
+name: VM Boot
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '30 1 * * 0'
+
+jobs:
+  test-vm:
+    name: Test VM Boot
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: selfhosted-nixos
+    timeout-minutes: 360
+    steps:
+      - run: sudo renice 10 -p $BASHPID
+      - uses: actions/checkout@v7
+
+      - uses: DeterminateSystems/nix-installer-action@v22
+        with:
+          init: none
+
+      - name: Start Nix daemon
+        run: sudo /nix/var/nix/profiles/default/bin/nix-daemon &
+
+      - name: Build VM
+        run: |
+          # We have to disable graphics on the VM since we don't have that here.
+          # We also disable steam, as steam-unwrapped refuses to build here.
+
+          nix build --impure --fallback --expr "
+            let flake = builtins.getFlake \"path:$GITHUB_WORKSPACE\";
+            in (flake.nixosConfigurations.qemu-desktop.extendModules {
+              modules = [({ lib, ... }: {
+                virtualisation.vmVariant.virtualisation.graphics = false;
+                programs.steam.enable = lib.mkForce false;
+              })];
+            }).config.system.build.vm
+          " --out-link result
+
+      - name: Boot VM in QEMU
+        run: |
+          result/bin/run-qemu-desktop-vm \
+            > /tmp/qemu-vm-boot.log 2>&1 &
+          QEMU_PID=$!
+
+          BOOT_TIMEOUT=300
+          echo "Waiting for multi-user target (PID $QEMU_PID)..."
+          for i in $(seq 1 $BOOT_TIMEOUT); do
+            if grep -q "Reached target.*Multi-User" /tmp/qemu-vm-boot.log 2>/dev/null; then
+              echo "Boot succeeded after ${i}s"
+              kill $QEMU_PID
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Timed out after ${BOOT_TIMEOUT}s. Last output:"
+          tail -30 /tmp/qemu-vm-boot.log
+          kill $QEMU_PID 2>/dev/null || true
+          exit 1

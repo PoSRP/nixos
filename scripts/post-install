@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+shopt -s nullglob
+
+BASE="desktops/$HOSTNAME"
+MOUNT="/mnt/files"
+GPG_KEY_FOR_GIT=""
+
+if ! mountpoint -q "$MOUNT" || [[ ! -d "$MOUNT/$BASE" ]]; then
+    echo "error: $MOUNT/$BASE not available (NFS share not mounted?)" >&2
+    exit 1
+fi
+
+install_ssh_key() {
+    local src=$1 dst=$2
+    case $src in
+        *.pub) install -m 644 "$src" "$dst" ;;
+        *)     install -m 600 "$src" "$dst" ;;
+    esac
+    echo "  $(basename "$dst")"
+}
+
+if [[ -d "$MOUNT/$BASE/secrets/ssh" ]]; then
+    echo "==> Installing SSH keys..."
+    install -d -m 700 "$HOME/.ssh"
+    for f in id_ed25519 id_ed25519.pub config authorized_keys; do
+        src="$MOUNT/$BASE/secrets/ssh/$f"
+        [[ -f "$src" ]] || continue
+        install_ssh_key "$src" "$HOME/.ssh/$f"
+    done
+else
+    echo "  no secrets/ssh found, skipping"
+fi
+
+if [[ -f "$MOUNT/$BASE/secrets/gpg/private.asc" ]]; then
+    echo "==> Importing GPG key..."
+    gpg --import "$MOUNT/$BASE/secrets/gpg/private.asc"
+    if [[ -f "$MOUNT/$BASE/secrets/gpg/public.asc" ]]; then
+        gpg --import "$MOUNT/$BASE/secrets/gpg/public.asc"
+    fi
+    GPG_KEY_ID=$(gpg --list-secret-keys --with-colons \
+        | awk -F: '/^sec:/ {print $5; exit}')
+    if [[ -n "$GPG_KEY_ID" ]]; then
+        GPG_KEY_FOR_GIT="$GPG_KEY_ID"
+        echo "  GPG key: $GPG_KEY_ID"
+    fi
+else
+    echo "  no secrets/gpg found, skipping"
+fi
+
+echo "==> Configuring git identity..."
+if [[ -f "$MOUNT/$BASE/secrets/git/name" ]]; then
+    GIT_NAME=$(<"$MOUNT/$BASE/secrets/git/name")
+else
+    echo "I can't find a git name file: $MOUNT/$BASE/secrets/git/name"
+    exit 1
+fi
+if [[ -f "$MOUNT/$BASE/secrets/git/email" ]]; then
+    GIT_EMAIL=$(<"$MOUNT/$BASE/secrets/git/email")
+else
+    echo "I can't find a git email file: $MOUNT/$BASE/secrets/git/email"
+    exit 1
+fi
+install -d "$HOME/.config/git"
+git config -f "$HOME/.config/git/local" user.name "$GIT_NAME"
+git config -f "$HOME/.config/git/local" user.email "$GIT_EMAIL"
+[[ -n "${GPG_KEY_FOR_GIT:-}" ]] && git config -f "$HOME/.config/git/local" user.signingkey "$GPG_KEY_FOR_GIT"
+echo "  name:  $GIT_NAME"
+echo "  email: $GIT_EMAIL"
+
+if [[ -d "$MOUNT/$BASE/wallpapers" ]]; then
+    echo "==> Syncing wallpapers to ~/.wallpapers/..."
+    mkdir -p "$HOME/.wallpapers"
+    rm -f "$HOME/.wallpapers/default-wallpaper.png"
+    rsync -a --info=progress2 "$MOUNT/$BASE/wallpapers/" "$HOME/.wallpapers/"
+else
+    echo "  no wallpapers found, skipping"
+fi
+
+echo ""
+echo "Done."

@@ -1,0 +1,6 @@
+**/package-lock.json
+**/yarn.lock
+**/result*
+**/*.qcow2
+
+secrets/metrics.env

@@ -1,0 +1,116 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 24,
+  "spacing": 12,
+
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/window"
+  ],
+  "modules-center": [
+  ],
+  "modules-right": [
+    "cpu",
+    "memory",
+    "disk",
+    "custom/diskio",
+    "custom/microphone",
+    "pulseaudio",
+    "backlight",
+    "custom/battery",
+    "custom/temp",
+    "custom/network",
+    "bluetooth",
+    "clock",
+    "custom/wallpaper"
+  ],
+
+  "hyprland/workspaces": {
+    "format": "{id}",
+    "on-click": "activate"
+  },
+
+  "clock": {
+    "format": "{:L%Y-%m-%d <small>[%a]</small> %H:%M:%S}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "interval": 1,
+    "on-click": "gsimplecal",
+    "on-click-right": "thunderbird"
+  },
+  "cpu": {
+    "format": "{usage}%",
+    "interval": 2,
+    "tooltip-format": "Average: {usage}%\nCore  0: {core0}%\nCore  1: {core1}%\nCore  2: {core2}%\nCore  3: {core3}%\nCore  4: {core4}%\nCore  5: {core5}%\nCore  6: {core6}%\nCore  7: {core7}%\nCore  8: {core8}%\nCore  9: {core9}%\nCore 10: {core10}%\nCore 11: {core11}%\nCore 12: {core12}%\nCore 13: {core13}%\nCore 14: {core14}%\nCore 15: {core15}%",
+    "on-click": "kitty --title 'System Monitor' btop"
+  },
+  "memory": {
+    "format": "{percentage}%",
+    "interval": 10,
+    "tooltip-format": "RAM\nUsed:      {used} GiB\nAvailable: {avail} GiB\nTotal:     {total} GiB\n\nSwap\nUsed:      {swapUsed} GiB\nTotal:     {swapTotal} GiB",
+    "on-click": "kitty --title 'System Monitor' btop"
+  },
+  "disk": {
+    "path": "/",
+    "format": "{percentage_used}%",
+    "interval": 30,
+    "tooltip-format": "Used: {used} / {total}"
+  },
+  "custom/diskio": {
+    "exec": "~/.config/waybar/diskio.sh",
+    "interval": 1,
+    "format": "{}",
+    "tooltip": false
+  },
+  "custom/temp": {
+    "exec": "~/.config/waybar/temp.sh",
+    "interval": 5,
+    "return-type": "json",
+    "hide-empty-text": true,
+    "on-click": "hardinfo2"
+  },
+  "backlight": {
+    "format": "{percent}%",
+    "on-scroll-up": "brightnessctl -e4 -n2 set +75",
+    "on-scroll-down": "brightnessctl -e4 -n2 set 75-"
+  },
+  "custom/battery": {
+    "exec": "~/.config/waybar/battery.sh",
+    "interval": 5,
+    "return-type": "json",
+    "hide-empty-text": true,
+    "on-click": "~/.config/waybar/battery-menu.sh"
+  },
+  "pulseaudio": {
+    "format": "{volume}%",
+    "format-icons": { "default": ["", "", ""] },
+    "tooltip-format": "Output: {desc}",
+    "scroll-step": 1,
+    "max-volume": 100,
+    "on-click": "pavucontrol",
+    "on-click-middle": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%"
+  },
+  "custom/network": {
+    "exec": "~/.config/waybar/network.sh",
+    "interval": 2,
+    "return-type": "json",
+    "on-click": "kitty --title 'Network Monitor' bmon",
+    "on-click-right": "kitty --title 'Network Settings' nmtui"
+  },
+  "custom/wallpaper": {
+    "exec": "~/.config/waybar/wallpaper-mode.sh",
+    "return-type": "json",
+    "signal": 8,
+    "tooltip": false,
+    "on-click": "~/.config/hypr/hyprpaper-private-toggle.sh"
+  },
+  "bluetooth": {
+    "format": "{status}",
+    "format-connected": "{device_alias}",
+    "format-connected-battery": "{device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias} ({controller_address})",
+    "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias} ({device_address})",
+    "on-click": "blueman-manager"
+  }
+}

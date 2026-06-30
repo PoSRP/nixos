@@ -1,0 +1,36 @@
+name: Update flake.lock
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Update flake inputs
+    if: github.repository == 'PoSRP/nixos'
+    runs-on: selfhosted-nixos
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Update flake.lock
+        run: nix flake update
+
+      - name: Check flake evaluates
+        run: nix flake check --no-build
+
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.PAT_PR_WRITE }}
+          branch: flake-lock-update
+          delete-branch: true
+          commit-message: 'flake.lock: update inputs'
+          title: 'flake.lock: update inputs'
+          body: Automated weekly flake input update.
+          labels: dependencies

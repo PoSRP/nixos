@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    echo "Usage: $0"
+    echo ""
+    echo "Build and run the QEMU desktop VM for testing."
+    echo "Run from anywhere inside the repo."
+    exit 0
+fi
+
+REPO_ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
+
+echo "Building qemu-desktop VM..."
+nix build "path:$REPO_ROOT#nixosConfigurations.qemu-desktop.config.system.build.vm" \
+    --out-link "$REPO_ROOT/result"
+
+exec "$REPO_ROOT/result/bin/run-qemu-desktop-vm"
