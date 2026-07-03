@@ -210,6 +210,8 @@
     ninja
     pre-commit
     claude-code
+    minicom
+    bmaptool
   ];
 
   fonts.packages = with pkgs; [
