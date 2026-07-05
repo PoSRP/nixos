@@ -94,6 +94,11 @@
 
   services.fwupd.enable = true;
 
+  services.printing.enable = true;
+  services.printing.cups-pdf.enable = true;
+  services.printing.cups-pdf.instances.pdf.settings.Out = "\${HOME}/cups-pdf";
+  hardware.printers.ensureDefaultPrinter = "pdf";
+
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
   xdg.portal.config.hyprland.default = [ "hyprland" "gtk" ];
@@ -190,6 +195,7 @@
     spotify
     stm32cubemx
     sublime-merge
+    system-config-printer
     (texlive.combine {
       inherit (texlive)
         scheme-medium
