@@ -196,6 +196,7 @@
         enumitem
         lipsum
         fontawesome5
+        libertinus
         libertinus-fonts
         libertinus-type1;
     })
