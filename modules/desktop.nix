@@ -190,7 +190,15 @@
     spotify
     stm32cubemx
     sublime-merge
-    texlive.combined.scheme-medium
+    (texlive.combine {
+      inherit (texlive)
+        scheme-medium
+        enumitem
+        lipsum
+        fontawesome5
+        libertinus-fonts
+        libertinus-type1;
+    })
     texstudio
     thunderbird
     transmission_4-gtk
