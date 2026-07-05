@@ -196,6 +196,7 @@
         enumitem
         lipsum
         fontawesome5
+        fontaxes
         libertinus
         libertinus-fonts
         libertinus-type1;
