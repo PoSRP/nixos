@@ -95,6 +95,7 @@
   services.fwupd.enable = true;
 
   services.printing.enable = true;
+  services.printing.drivers = with pkgs; [ epson-escpr gutenprint ];
   services.printing.cups-pdf.enable = true;
   services.printing.cups-pdf.instances.pdf.settings.Out = "\${HOME}/cups-pdf";
   hardware.printers.ensureDefaultPrinter = "pdf";
