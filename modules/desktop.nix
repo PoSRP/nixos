@@ -143,6 +143,7 @@
     gcc15
     gh
     gimp
+    gphoto2
     git
     gsimplecal
     git-crypt
