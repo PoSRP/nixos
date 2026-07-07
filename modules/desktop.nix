@@ -140,6 +140,7 @@
     btop
     curl
     darktable
+    dcraw
     discord
     docker-compose
     drawio
@@ -191,6 +192,7 @@
     qalculate-gtk
     bemenu
     libnotify
+    libopenraw
     rofi
     rpi-imager
     shellcheck

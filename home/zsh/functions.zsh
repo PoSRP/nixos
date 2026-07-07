@@ -10,6 +10,58 @@ claude_wsp() {
   fi
 }
 
+nsxiv() {
+  if (( $# == 0 )); then
+    command nsxiv
+    return
+  fi
+
+  local -a flags files
+  local a f
+  for a in "$@"; do
+    if [[ "$a" == -* ]]; then
+      flags+=("$a")
+    elif [[ -d "$a" ]]; then
+      for f in "$a"/*(.N); do files+=("$f"); done
+    elif [[ -e "$a" ]]; then
+      files+=("$a")
+    fi
+  done
+
+  local has_raw=0
+  for f in "${files[@]}"; do
+    case "${f:l}" in
+      *.cr2|*.cr3|*.arw|*.nef|*.dng|*.orf|*.rw2|*.raf) has_raw=1; break ;;
+    esac
+  done
+  if (( ! has_raw )); then
+    command nsxiv "$@"
+    return
+  fi
+
+  local tmpdir
+  tmpdir=$(mktemp -d /tmp/nsxiv-raw.XXXXXX) || return 1
+  local base
+  for f in "${files[@]}"; do
+    base="${f:t}"
+    case "${base:l}" in
+      *.cr2|*.cr3|*.arw|*.nef|*.dng|*.orf|*.rw2|*.raf)
+        dcraw -e -c "$f" > "$tmpdir/${base:r}.jpg" 2>/dev/null \
+          || echo "nsxiv: no embedded preview in $f" >&2
+        ;;
+      *)
+        ln -s "${f:A}" "$tmpdir/$base"
+        ;;
+    esac
+  done
+
+  {
+    command nsxiv "${flags[@]}" "$tmpdir"
+  } always {
+    rm -rf "$tmpdir"
+  }
+}
+
 nixhelp() {
   export NIXPKGS_ALLOW_UNFREE=1
 
