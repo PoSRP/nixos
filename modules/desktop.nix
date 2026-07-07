@@ -140,6 +140,7 @@
     btop
     curl
     darktable
+    exiv2
     discord
     docker-compose
     drawio
