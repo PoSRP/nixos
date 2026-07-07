@@ -46,8 +46,27 @@ nsxiv() {
     base="${f:t}"
     case "${base:l}" in
       *.cr2|*.cr3|*.arw|*.nef|*.dng|*.orf|*.rw2|*.raf)
-        dcraw_emu -e -c "$f" > "$tmpdir/${base:r}.jpg" 2>/dev/null \
-          || echo "nsxiv: no embedded preview in $f" >&2
+        local subdir
+        subdir=$(mktemp -d "$tmpdir/raw.XXXXXX") || continue
+        ln -sf "${f:A}" "$subdir/$base"
+        if (cd "$subdir" && exiv2 -ep "$base" >/dev/null 2>&1); then
+          local largest="" largest_size=0 pv s
+          for pv in "$subdir"/*-preview*.jpg(N); do
+            s=$(stat -c%s "$pv")
+            if (( s > largest_size )); then
+              largest_size=$s
+              largest=$pv
+            fi
+          done
+          if [[ -n "$largest" ]]; then
+            mv "$largest" "$tmpdir/${base:r}.jpg"
+          else
+            echo "nsxiv: no jpg preview in $f" >&2
+          fi
+        else
+          echo "nsxiv: no embedded preview in $f" >&2
+        fi
+        rm -rf "$subdir"
         ;;
       *)
         ln -s "${f:A}" "$tmpdir/$base"
