@@ -46,7 +46,7 @@ nsxiv() {
     base="${f:t}"
     case "${base:l}" in
       *.cr2|*.cr3|*.arw|*.nef|*.dng|*.orf|*.rw2|*.raf)
-        dcraw -e -c "$f" > "$tmpdir/${base:r}.jpg" 2>/dev/null \
+        dcraw_emu -e -c "$f" > "$tmpdir/${base:r}.jpg" 2>/dev/null \
           || echo "nsxiv: no embedded preview in $f" >&2
         ;;
       *)

@@ -140,7 +140,7 @@
     btop
     curl
     darktable
-    dcraw
+    libraw
     discord
     docker-compose
     drawio
