@@ -72,8 +72,7 @@ echo "  email: $GIT_EMAIL"
 if [[ -d "$MOUNT/$BASE/wallpapers" ]]; then
     echo "==> Syncing wallpapers to ~/.wallpapers/..."
     mkdir -p "$HOME/.wallpapers"
-    rm -f "$HOME/.wallpapers/default-wallpaper.png"
-    rsync -a --info=progress2 "$MOUNT/$BASE/wallpapers/" "$HOME/.wallpapers/"
+    rsync -a --delete --info=progress2 "$MOUNT/$BASE/wallpapers/" "$HOME/.wallpapers/"
 else
     echo "  no wallpapers found, skipping"
 fi
