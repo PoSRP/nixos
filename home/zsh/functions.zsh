@@ -153,17 +153,23 @@ diesoon() {
   local bat_caps=(/sys/class/power_supply/BAT*/capacity(N))
   local bat_stats=(/sys/class/power_supply/BAT*/status(N))
   local bat_cap=$bat_caps[1] bat_status=$bat_stats[1]
-  local deadline=$(( $(date +%s) + mins * 60 ))
+  local bat_dir="${bat_cap:h}"
 
-  if [[ -n "$battery_pct" && -n "$mins" ]]; then
-    echo "Powering off in ${mins}m or when battery hits ${battery_pct}%, whichever comes first..."
-  else
-    echo "Powering off in ${mins} minute(s)..."
-  fi
+  local start=$(date +%s)
+  local deadline=$(( start + mins * 60 ))
+
+  printf 'diesoon: now %s, shutdown at %s (in %dm)\n' \
+    "$(date -d @$start +%H:%M)" "$(date -d @$deadline +%H:%M)" "$mins"
+
+  local last_print=$start
+  local print_interval=300
+  local poll_interval=30
 
   while true; do
-    if [[ $(date +%s) -ge $deadline ]]; then
-      echo "Time limit reached. Powering off..."
+    local now=$(date +%s)
+
+    if (( now >= deadline )); then
+      echo "diesoon: time limit reached, powering off..."
       systemctl poweroff; return
     fi
 
@@ -171,11 +177,44 @@ diesoon() {
       local pct=$(cat "$bat_cap" 2>/dev/null)
       local st=$(cat "$bat_status" 2>/dev/null)
       if [[ "$st" != "Charging" && -n "$pct" && "$pct" -le "$battery_pct" ]]; then
-        echo "Battery at ${pct}%. Powering off..."
+        echo "diesoon: battery at ${pct}%, powering off..."
         systemctl poweroff; return
       fi
     fi
 
-    sleep 30
+    if (( now - last_print >= print_interval )); then
+      last_print=$now
+      local hard_remain=$(( (deadline - now + 59) / 60 ))
+      local eta_msg=""
+
+      if [[ -n "$battery_pct" ]]; then
+        local st=$(cat "$bat_status" 2>/dev/null)
+        if [[ "$st" != "Charging" ]]; then
+          local now_key full_key rate_key
+          if [[ -r "$bat_dir/energy_now" ]]; then
+            now_key=energy_now; full_key=energy_full; rate_key=power_now
+          elif [[ -r "$bat_dir/charge_now" ]]; then
+            now_key=charge_now; full_key=charge_full; rate_key=current_now
+          fi
+          if [[ -n "$now_key" ]]; then
+            local e_now=$(cat "$bat_dir/$now_key" 2>/dev/null)
+            local e_full=$(cat "$bat_dir/$full_key" 2>/dev/null)
+            local e_rate=$(cat "$bat_dir/$rate_key" 2>/dev/null)
+            if [[ -n "$e_now" && -n "$e_full" && -n "$e_rate" ]] && (( e_rate > 0 )); then
+              local target=$(( e_full * battery_pct / 100 ))
+              local delta=$(( e_now - target ))
+              if (( delta > 0 )); then
+                local eta_min=$(( delta * 3600 / e_rate / 60 ))
+                eta_msg=", battery limit in ~${eta_min}m"
+              fi
+            fi
+          fi
+        fi
+      fi
+
+      echo "diesoon: hard limit in ${hard_remain}m${eta_msg}"
+    fi
+
+    sleep $poll_interval
   done
 }
