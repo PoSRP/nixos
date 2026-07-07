@@ -5,14 +5,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/PoSRP/nixos/actions/workflows/vm-boot.yaml">
-    <img alt="VM Boot" src="https://github.com/PoSRP/nixos/actions/workflows/vm-boot.yaml/badge.svg">
-  </a>
+  <a href="https://github.com/PoSRP/nixos/actions/workflows/vm-boot.yaml"><img alt="VM Boot" src="https://github.com/PoSRP/nixos/actions/workflows/vm-boot.yaml/badge.svg"></a>
   <img alt="NixOS" src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=flat&logo=nixos&logoColor=white">
   <img alt="Hyprland" src="https://img.shields.io/badge/Hyprland-Wayland-58E1FF?style=flat">
-  <a href="LICENSE">
-    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat">
-  </a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat"></a>
 </p>
 
 <p align="center">
