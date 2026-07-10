@@ -4,8 +4,8 @@
   home.file = {
     ".config/waybar/config".source = ./waybar/config;
     ".config/waybar/style.css".source = ./waybar/style.css;
-    ".config/waybar/diskio.sh" = {
-      source = ./waybar/diskio.sh;
+    ".config/waybar/disk.sh" = {
+      source = ./waybar/disk.sh;
       executable = true;
     };
     ".config/waybar/temp.sh" = {

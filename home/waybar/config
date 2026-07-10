@@ -13,8 +13,7 @@
   "modules-right": [
     "cpu",
     "memory",
-    "disk",
-    "custom/diskio",
+    "custom/disk",
     "custom/microphone",
     "pulseaudio",
     "backlight",
@@ -50,17 +49,11 @@
     "tooltip-format": "RAM\nUsed:      {used} GiB\nAvailable: {avail} GiB\nTotal:     {total} GiB\n\nSwap\nUsed:      {swapUsed} GiB\nTotal:     {swapTotal} GiB",
     "on-click": "kitty --title 'System Monitor' btop"
   },
-  "disk": {
-    "path": "/",
-    "format": "{percentage_used}%",
-    "interval": 30,
-    "tooltip-format": "Used: {used} / {total}"
-  },
-  "custom/diskio": {
-    "exec": "~/.config/waybar/diskio.sh",
+  "custom/disk": {
+    "exec": "~/.config/waybar/disk.sh",
     "interval": 1,
-    "format": "{}",
-    "tooltip": false
+    "return-type": "json",
+    "format": "{}"
   },
   "custom/temp": {
     "exec": "~/.config/waybar/temp.sh",
