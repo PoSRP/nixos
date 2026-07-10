@@ -219,6 +219,7 @@
     gnupg
     waybar
     wget
+    wl-clipboard
     where-is-my-sddm-theme
     tree
     python3
