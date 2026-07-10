@@ -12,6 +12,10 @@
       source = ./waybar/temp.sh;
       executable = true;
     };
+    ".config/waybar/keyboard.sh" = {
+      source = ./waybar/keyboard.sh;
+      executable = true;
+    };
     ".config/waybar/battery.sh" = {
       source = ./waybar/battery.sh;
       executable = true;
