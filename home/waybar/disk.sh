@@ -62,8 +62,12 @@ else
 fi
 if (( cache_age > SMART_TTL )) && [ -n "$SMARTCTL" ]; then
     (
-        sudo -n "$SMARTCTL" -a "$SMART_DEV" 2>/dev/null > "${SMART_CACHE}.tmp" \
-            && mv "${SMART_CACHE}.tmp" "$SMART_CACHE"
+        tmp=$(mktemp "${SMART_CACHE}.XXXXXX")
+        if sudo -n "$SMARTCTL" -a "$SMART_DEV" >"$tmp" 2>/dev/null; then
+            mv "$tmp" "$SMART_CACHE"
+        else
+            rm -f "$tmp"
+        fi
     ) &
     disown 2>/dev/null || true
 fi
