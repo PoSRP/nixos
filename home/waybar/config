@@ -20,6 +20,7 @@
     "custom/temp",
     "custom/network",
     "bluetooth",
+    "custom/keyboard",
     "clock",
     "custom/wallpaper"
   ],
@@ -95,6 +96,12 @@
     "signal": 8,
     "tooltip": false,
     "on-click": "~/.config/hypr/hyprpaper-private-toggle.sh"
+  },
+  "custom/keyboard": {
+    "exec": "~/.config/waybar/keyboard.sh",
+    "interval": 1,
+    "return-type": "json",
+    "format": "{}"
   },
   "bluetooth": {
     "format": "{status}",
