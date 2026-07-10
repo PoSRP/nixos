@@ -47,10 +47,16 @@ in
 
   security.sudo.extraRules = [{
     users = [ username ];
-    commands = [{
-      command = "${config.services.tlp.package}/bin/tlp fullcharge BAT0";
-      options = [ "NOPASSWD" ];
-    }];
+    commands = [
+      {
+        command = "${config.services.tlp.package}/bin/tlp fullcharge BAT0";
+        options = [ "NOPASSWD" ];
+      }
+      {
+        command = "${pkgs.smartmontools}/bin/smartctl -a /dev/nvme0";
+        options = [ "NOPASSWD" ];
+      }
+    ];
   }];
 
   system.stateVersion = "25.11";

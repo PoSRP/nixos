@@ -195,6 +195,7 @@
     rofi
     rpi-imager
     shellcheck
+    smartmontools
     spotify
     stm32cubemx
     sublime-merge
