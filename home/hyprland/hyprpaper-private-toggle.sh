@@ -6,7 +6,9 @@ SENTINEL="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hyprpaper-include-private"
 
 verify_password() {
     local entered
-    entered=$(rofi -dmenu -password -p "" -l 0 < /dev/null) || return 1
+    entered=$(rofi -dmenu -password -p "" -l 0 \
+        -theme "$HOME/.config/rofi/popover.rasi" \
+        < /dev/null) || return 1
     [[ -n "$entered" ]] || return 1
     # Validate against the login password via sudo -v, then immediately
     # invalidate the timestamp so this doesn't bleed into normal sudo use.

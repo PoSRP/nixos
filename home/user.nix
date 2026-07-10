@@ -6,6 +6,7 @@
     ./hyprland.nix
     ./kitty.nix
     ./mako.nix
+    ./rofi.nix
     ./thunar.nix
     ./vscode.nix
     ./waybar.nix

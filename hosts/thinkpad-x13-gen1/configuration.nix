@@ -48,7 +48,7 @@ in
   security.sudo.extraRules = [{
     users = [ username ];
     commands = [{
-      command = "${pkgs.tlp}/bin/tlp fullcharge BAT0";
+      command = "${config.services.tlp.package}/bin/tlp fullcharge BAT0";
       options = [ "NOPASSWD" ];
     }];
   }];
