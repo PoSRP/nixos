@@ -1,7 +1,7 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 24,
+  "height": 26,
   "spacing": 12,
 
   "modules-left": [
@@ -14,7 +14,6 @@
     "cpu",
     "memory",
     "custom/disk",
-    "custom/microphone",
     "pulseaudio",
     "backlight",
     "custom/battery",
