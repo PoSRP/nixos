@@ -28,8 +28,14 @@ fi
 max_temp=$(jq -r 'map(.value) | max | floor' <<<"$temps")
 
 tooltip=$(jq -r '
-    sort_by(-.value) |
-    map("[\(.chip)] \(.label): \(.value | floor) °C") | join("\n")
+    def ljust($w): . + (" " * ($w - length));
+    def rjust($w): (" " * ($w - length)) + .;
+    sort_by(.chip + " " + .label) |
+    map({prefix: "[\(.chip)] \(.label):", val: "\(.value | floor) °C"}) |
+    (map(.prefix | length) | max) as $pw |
+    (map(.val    | length) | max) as $vw |
+    map((.prefix | ljust($pw)) + "  " + (.val | rjust($vw))) |
+    "<tt>" + join("\n") + "</tt>"
 ' <<<"$temps")
 
 text="${max_temp}°C"
