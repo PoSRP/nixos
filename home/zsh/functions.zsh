@@ -184,7 +184,9 @@ nixhelp() {
       } always {
         git -C "$repo" worktree remove --force "$worktree"
       }
-      (( do_reboot && rebuild_ok )) && sudo systemctl reboot
+      if (( do_reboot && rebuild_ok )); then
+        sudo systemctl reboot
+      fi
       ;;
     rollback)
       local gen_count latest_gen
