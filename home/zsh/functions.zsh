@@ -206,6 +206,38 @@ nixhelp() {
   esac
 }
 
+_nixhelp() {
+  local repo="$HOME/workspace/nixos"
+
+  if (( CURRENT == 2 )); then
+    local -a cmds=(
+      'search:nix search'
+      'try:nix shell'
+      'update:rebuild from origin/main'
+      'test:test a branch or PR'
+      'rollback:roll back one generation'
+    )
+    _describe 'nixhelp command' cmds
+    return
+  fi
+
+  case "${words[2]}" in
+    test)
+      local -a flags locals remotes prs
+      flags=('--reboot:reboot after test')
+      locals=(${(f)"$(git -C "$repo" branch --format='%(refname:short)' 2>/dev/null)"})
+      remotes=(${(f)"$(git -C "$repo" branch -r --format='%(refname:short)' 2>/dev/null | grep -v '/HEAD$')"})
+      prs=(${(f)"$(cd "$repo" 2>/dev/null && gh pr list --state open --json number,title -q '.[]|"PR-\(.number):\(.title)"' 2>/dev/null)"})
+
+      _describe -t flags   'flag'          flags
+      _describe -t locals  'local branch'  locals
+      _describe -t remotes 'remote branch' remotes
+      (( $#prs )) && _describe -t prs 'open PR' prs
+      ;;
+  esac
+}
+compdef _nixhelp nixhelp
+
 diesoon() {
   local battery_pct mins
 
