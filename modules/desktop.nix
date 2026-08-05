@@ -154,6 +154,7 @@
     drawio
     dropbox
     ffmpeg
+    file
     freecad
     gcc15
     gh
