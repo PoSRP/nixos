@@ -4,6 +4,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [ "ventoy-1.1.10" ];
 
   programs.steam.enable = true;
 
@@ -170,7 +171,6 @@
     jq
     kdePackages.ark
     kdePackages.breeze
-    kdePackages.isoimagewriter
     kdePackages.plasma-integration
     xfce.thunar
     xfce.thunar-archive-plugin
@@ -222,6 +222,7 @@
     thunderbird
     transmission_4-gtk
     usbutils
+    ventoy-full
     nfs-utils
     rsync
     gnupg
