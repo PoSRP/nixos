@@ -79,7 +79,7 @@
     "format-icons": { "default": ["", "", ""] },
     "tooltip-format": "Output: {desc}",
     "scroll-step": 1,
-    "max-volume": 100,
+    "max-volume": 150,
     "on-click": "pavucontrol",
     "on-click-middle": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%"
   },
