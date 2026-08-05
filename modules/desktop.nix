@@ -4,6 +4,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [ "ventoy-1.1.10" ];
 
   programs.steam.enable = true;
 
