@@ -249,7 +249,6 @@
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
-    komika-fonts
     google-fonts
   ];
 
