@@ -170,6 +170,7 @@
     inetutils
     jellyfin-media-player
     jq
+    jre
     kdePackages.ark
     kdePackages.breeze
     kdePackages.plasma-integration
