@@ -20,9 +20,9 @@ in
 
 {
   fileSystems = {
-    "/mnt/files"  = share "192.168.1.216" "/mnt/data/files";
-    "/mnt/music"  = share "192.168.1.221" "/mnt/data/music";
-    "/mnt/images" = share "192.168.1.212" "/mnt/data/images";
-    "/mnt/videos" = share "192.168.1.218" "/mnt/data/videos";
+    "/media/files"  = share "192.168.1.216" "/mnt/data/files";
+    "/media/music"  = share "192.168.1.221" "/mnt/data/music";
+    "/media/images" = share "192.168.1.212" "/mnt/data/images";
+    "/media/videos" = share "192.168.1.218" "/mnt/data/videos";
   };
 }
