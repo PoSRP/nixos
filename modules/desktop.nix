@@ -43,6 +43,8 @@
   programs.virt-manager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
 
+  virtualisation.spiceUSBRedirection.enable = true;
+
   services.resolved = {
     enable = true;
     domains = [ "~homelab.local" ];
