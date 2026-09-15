@@ -18,7 +18,7 @@ jobs:
       - run: sudo renice 10 -p $BASHPID
       - uses: actions/checkout@v7
 
-      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: DeterminateSystems/nix-installer-action@v23
         with:
           init: none
 
