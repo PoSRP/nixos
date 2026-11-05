@@ -70,7 +70,7 @@ ensure_hyprpaper() {
     fi
 
     local i=0
-    until hyprctl hyprpaper listloaded >/dev/null 2>&1; do
+    until hyprctl hyprpaper listactive >/dev/null 2>&1; do
         sleep 0.5
         (( i++ )) || true
         if [[ $i -ge 20 ]]; then

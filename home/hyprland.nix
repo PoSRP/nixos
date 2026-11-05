@@ -2,7 +2,7 @@
 
 {
   home.file = {
-    ".config/hypr/hyprland.conf".source = ./hyprland/hyprland.conf;
+    ".config/hypr/hyprland.lua".source = ./hyprland/hyprland.lua;
     ".config/hypr/hyprlock.conf".source = ./hyprland/hyprlock.conf;
     ".config/hypr/hyprpaper.conf".source = ./hyprland/hyprpaper.conf;
     ".config/hypr/hyprpaper-rotator.sh" = {

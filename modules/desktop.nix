@@ -4,7 +4,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.permittedInsecurePackages = [ "ventoy-1.1.10" ];
+  nixpkgs.config.permittedInsecurePackages = [ "ventoy-1.1.12" ];
 
   programs.steam.enable = true;
 
@@ -21,14 +21,14 @@
       dbus
       glib
       wayland
-      xorg.libX11
-      xorg.libxcb
-      xorg.xcbutil
-      xorg.xcbutilcursor
-      xorg.xcbutilimage
-      xorg.xcbutilkeysyms
-      xorg.xcbutilrenderutil
-      xorg.xcbutilwm
+      libx11
+      libxcb
+      libxcb-util
+      libxcb-cursor
+      libxcb-image
+      libxcb-keysyms
+      libxcb-render-util
+      libxcb-wm
     ];
   };
 
@@ -49,11 +49,11 @@
 
   services.resolved = {
     enable = true;
-    domains = [ "~homelab.local" ];
-    fallbackDns = [ "1.1.1.1" "1.0.0.1" ];
-    extraConfig = ''
-      DNS=192.168.1.207
-    '';
+    settings.Resolve = {
+      DNS = "192.168.1.207";
+      Domains = "~homelab.local";
+      FallbackDNS = "1.1.1.1 1.0.0.1";
+    };
   };
 
   hardware.bluetooth.enable = true;
@@ -178,10 +178,10 @@
     kdePackages.ark
     kdePackages.breeze
     kdePackages.plasma-integration
-    xfce.thunar
-    xfce.thunar-archive-plugin
-    xfce.thunar-volman
-    xfce.tumbler
+    thunar
+    thunar-archive-plugin
+    thunar-volman
+    tumbler
     keepassxc
     kicad
     kid3
@@ -190,11 +190,11 @@
     libreoffice
     lm_sensors
     mako
-    mate.atril
+    atril
     meld
     micro
     mpv
-    neofetch
+    fastfetch
     nicotine-plus
     nsxiv
     orca-slicer
